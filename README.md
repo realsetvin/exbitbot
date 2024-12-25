@@ -159,12 +159,6 @@ screen -r exbitbot
 
 ## License
 
-Here’s the updated **LICENSE** section for your README file, with the verbose licensing information and a note about following local laws:
-
----
-
-## License
-
 This project is licensed under the **MIT License**.
 
 ```
