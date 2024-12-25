@@ -1,5 +1,3 @@
-Here’s an updated version of the README with a note indicating that the project is experimental and may require updates or fixes:
-
 ---
 
 # ExbitBot - Automated Spread Trading Bot for Exbitron
