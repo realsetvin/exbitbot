@@ -1,5 +1,3 @@
----
-
 # ExbitBot - Automated Spread Trading Bot for Exbitron
 
 **ExbitBot** is an experimental, automated trading bot designed to perform spread trading on the **Exbitron** exchange. This bot fetches the order book for a specified market, calculates a center price, and places buy and sell orders around this price to create a spread. It handles order placement, cancellation of unfilled orders, and includes robust error handling to ensure smooth operation.
