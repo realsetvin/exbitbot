@@ -118,7 +118,20 @@ def get_market_info(market):
     return None
 
 def place_order(market, side, volume, price):
-    """Places an order on Exbitron."""
+    """Places an order on Exbitron if the user has enough balance."""
+    balance = get_balance()
+    
+    # Check if balance is enough for the order
+    if side == "buy":
+        if balance.get("USDT", 0) < price * volume:
+            log_message(f"Insufficient USDT balance to place {side} order. Skipping order.")
+            return None
+    elif side == "sell":
+        asset = market.split('-')[0]
+        if balance.get(asset, 0) < volume:
+            log_message(f"Insufficient {asset} balance to place {side} order. Skipping order.")
+            return None
+
     data = {
         "amount": volume,
         "market": market,
@@ -148,26 +161,22 @@ def place_order(market, side, volume, price):
         return None
 
 def create_spread(market, center_price, min_volume, levels):
-    """Creates buy and sell orders around the center price, starting from the minimum price."""
+    """Creates buy and sell orders around the center price, starting from the middle price."""
     spread_orders = []
-    market_min_price = get_market_info(market)
+    spread_percentage = 0.00375  # 0.375% spread per level
 
-    if not market_min_price:
-        log_message(f"Failed to fetch market minimum price for {market}.")
-        return spread_orders
-
-    log_message(f"Starting spread orders from market minimum price: {market_min_price}")
+    log_message(f"Starting spread orders from middle price: {center_price}")
 
     for i in range(1, levels + 1):
-        spread = 0.00125 * i  # Spread increment (0.125% per level)
+        spread = spread_percentage * i  # Spread increment (0.375% per level)
         volume_multiplier = 1 + (0.125 * i)  # Volume increases by 12.5% per level
 
-        # Start the first order from the market minimum
-        buy_price = round(market_min_price * (1 - spread), 8)  # Ensure no conflict
+        # Buy orders: decrease price from the center
+        buy_price = round(center_price * (1 - spread), 8)
         buy_volume = round(min_volume * volume_multiplier, 8)
         spread_orders.append((market, "buy", buy_volume, buy_price))
 
-        # Sell order around the center price
+        # Sell orders: increase price from the center
         sell_price = round(center_price * (1 + spread), 8)
         sell_volume = round(min_volume * volume_multiplier, 8)
         spread_orders.append((market, "sell", sell_volume, sell_price))
