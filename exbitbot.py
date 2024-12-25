@@ -82,14 +82,20 @@ def display_order_book(order_book):
     bids = order_book.get("bids", [])
     asks = order_book.get("asks", [])
 
+    # Sort the bids in descending order (highest to lowest)
+    bids = sorted(bids, key=lambda x: float(x[0]), reverse=True)
+
+    # Sort the asks in ascending order (lowest to highest)
+    asks = sorted(asks, key=lambda x: float(x[0]))
+
     log_message(f"\n--- Order Book ---")
-    log_message(f"Top Bids (Buy Orders):")
-    for bid in bids[:5]:  # Display top 5 bids
-        log_message(f"Price: {bid[0]} | Volume: {bid[1]}")
-    
-    log_message(f"\nTop Asks (Sell Orders):")
+    log_message(f"Top Asks (Sell Orders):")
     for ask in asks[:5]:  # Display top 5 asks
         log_message(f"Price: {ask[0]} | Volume: {ask[1]}")
+    
+    log_message(f"\nTop Bids (Buy Orders):")
+    for bid in bids[:5]:  # Display top 5 bids
+        log_message(f"Price: {bid[0]} | Volume: {bid[1]}")
     
     log_message(f"-------------------\n")
 
@@ -163,12 +169,12 @@ def place_order(market, side, volume, price):
 def create_spread(market, center_price, min_volume, levels):
     """Creates buy and sell orders around the center price, starting from the middle price."""
     spread_orders = []
-    spread_percentage = 0.00375  # 0.375% spread per level
+    spread_percentage = 0.01375  # 1.375% spread per level
 
     log_message(f"Starting spread orders from middle price: {center_price}")
 
     for i in range(1, levels + 1):
-        spread = spread_percentage * i  # Spread increment (0.375% per level)
+        spread = spread_percentage * i  # Spread increment (1.375% per level)
         volume_multiplier = 1 + (0.125 * i)  # Volume increases by 12.5% per level
 
         # Buy orders: decrease price from the center
@@ -233,6 +239,13 @@ def resubmit_orders(market, min_volume, levels):
             time.sleep(300)  # Wait 5 minutes and retry
             continue
 
+        # Check balance before proceeding with orders
+        balance = get_balance()
+        if not balance.get("USDT", 0) or not balance.get(market.split('-')[0], 0):
+            log_message("Not enough balance to place any orders. Skipping this cycle.")
+            time.sleep(300)  # Wait 5 minutes and retry
+            continue
+
         # Cancel only unfilled orders
         log_message("Canceling unfilled orders, keeping partially filled orders active...")
         cancel_unfilled_orders(market)
@@ -242,6 +255,9 @@ def resubmit_orders(market, min_volume, levels):
         place_spread_orders(spread_orders)
 
         log_message("Orders resubmitted. Waiting 5 minutes for next cycle.")
+        for i in range(5, 0, -1):
+            log_message(f"Waiting for next cycle in {i} minutes...")
+            time.sleep(60)  # Countdown timer
         time.sleep(300)  # Wait 5 minutes before resubmitting
 
 def calculate_pnl(trade_history):
