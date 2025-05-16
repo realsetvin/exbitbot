@@ -180,4 +180,4 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 - This project is **open-source** and licensed under the **MIT License**.
 - **Users are responsible for ensuring compliance with all local laws** related to the use of the software, including but not limited to financial, tax, or trading regulations. The software is provided for educational and research purposes only.
 
-For more information, visit my profile: [Linktree - Setvin](https://linktr.ee/setvin)
+For more information, visit my profile: https://github.com/realsetvin
